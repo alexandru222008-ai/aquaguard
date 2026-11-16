@@ -1,7 +1,10 @@
 # 💧 AquaGuard: SDG 6 Water Safety Toolkit
 
 **Author:** Alexandru Arhirii
+
 **Goal:** UN Sustainable Development Goal 6, Clean Water and Sanitation
+
+**Live demo:** https://alexandru222008-ai.github.io/aquaguard/
 
 AquaGuard is a free, offline-friendly web app with three tools:
 
