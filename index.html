@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AquaGuard – SDG 6 Water Safety Toolkit | Alexandru Arhirii</title>
+<meta name="author" content="Alexandru Arhirii">
+<meta name="description" content="AquaGuard: water quality checker, usage tracker and sanitation checklist for UN SDG 6.">
+<style>
+:root{--bg:#f3f8fa;--card:#fff;--tx:#12303b;--mu:#5b7783;--ac:#0b7fa8;--ok:#1b8a4b;--wn:#c47a00;--bd:#c0392b;--ln:#d5e4ea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1b21;--card:#14262e;--tx:#e6f2f6;--mu:#93aeb9;--ac:#4cc3ea;--ok:#4cd488;--wn:#f0b040;--bd:#ff7b6b;--ln:#244350;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1b21;--card:#14262e;--tx:#e6f2f6;--mu:#93aeb9;--ac:#4cc3ea;--ok:#4cd488;--wn:#f0b040;--bd:#ff7b6b;--ln:#244350;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,Segoe UI,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{margin:8px 0 2px;font-size:1.6rem}.sub{color:var(--mu);margin:0 0 14px}
+nav{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}
+nav button{flex:1;min-width:110px;padding:10px;border:1px solid var(--ln);background:var(--card);color:var(--tx);border-radius:10px;font:inherit;cursor:pointer}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:16px;margin-bottom:12px}
+label{display:block;font-size:.85rem;color:var(--mu);margin-top:10px}
+input{width:100%;padding:10px;border:1px solid var(--ln);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.go{margin-top:14px;width:100%;padding:12px;border:0;border-radius:10px;background:var(--ac);color:#fff;font:600 1rem inherit;cursor:pointer}
+.res{border-left:6px solid var(--ok);padding:8px 12px;margin:8px 0;border-radius:6px;background:var(--bg)}
+.res.wn{border-color:var(--wn)}.res.bd{border-color:var(--bd)}
+.bar{height:14px;background:var(--ln);border-radius:7px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--ln)}
+.chk input{width:auto;margin-top:5px}
+small{color:var(--mu)}
+</style></head><body><main>
+<h1>💧 AquaGuard</h1>
+<p class="sub">Test it. Save it. Keep it clean. A toolkit for UN SDG 6: Clean Water &amp; Sanitation.<br><small>Created by <b>Alexandru Arhirii</b></small></p>
+<div class="card" id="fact" style="border-left:6px solid var(--ac)"></div>
+<nav id="tabs"></nav>
+<section id="t0" class="card"></section><section id="t1" class="card" hidden></section><section id="t2" class="card" hidden></section>
+<p><small>© 2026 Alexandru Arhirii · MIT License · Guideline values based on WHO Guidelines for Drinking-water Quality. This is an educational screening tool, not a lab test: if in doubt, boil water for 1 minute and contact your local health authority.</small></p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const names=["🧪 Water Test","🚿 Usage Tracker","🧼 Sanitation"];
+names.forEach((n,i)=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>show(i);$("tabs").appendChild(b)});
+function show(i){[0,1,2].forEach(k=>{$("t"+k).hidden=k!==i;$("tabs").children[k].classList.toggle("on",k===i)})}
+show(0);
+const facts=["Around 2 billion people lack safely managed drinking water (WHO/UNICEF).","A dripping tap can waste over 5,000 litres a year.","Washing hands with soap is one of the cheapest ways to prevent disease.","Turning the tap off while brushing saves about 10 litres each time.","SDG 6 aims for safe water and sanitation for all by 2030."];
+$("fact").innerHTML="💡 <b>Did you know?</b> "+facts[Math.floor(Math.random()*facts.length)];
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---- 1. Water test ---- */
+$("t0").innerHTML=`<h2>Is my water safe?</h2><small>Enter any readings you have from a test strip or meter. Leave blank to skip.</small>
+<div class="row"><div><label>pH</label><input id="ph" type="number" step="0.1"></div>
+<div><label>Turbidity (NTU)</label><input id="tu" type="number" step="0.1"></div>
+<div><label>TDS (mg/L)</label><input id="td" type="number"></div>
+<div><label>Free chlorine (mg/L)</label><input id="cl" type="number" step="0.1"></div></div>
+<button class="go" id="chk">Check water quality</button><div id="out"></div>`;
+const rules=[
+ ["ph","pH",v=>v>=6.5&&v<=8.5?[0,"Within the safe 6.5–8.5 range."]:[2,"Outside 6.5–8.5: can corrode pipes or taste bad. Check the source."]],
+ ["tu","Turbidity",v=>v<=1?[0,"Clear water (≤1 NTU)."]:v<=5?[1,"Slightly cloudy. Filter, then disinfect."]:[2,"Very cloudy (>5 NTU): germs can hide in particles. Filter before boiling."]],
+ ["td","TDS",v=>v<=600?[0,"Good taste and mineral level."]:v<=1000?[1,"Acceptable but noticeable taste."]:[2,"High (>1000 mg/L). Test for salts or pollutants."]],
+ ["cl","Free chlorine",v=>v<0.2?[1,"Below 0.2 mg/L: may not be protected from germs."]:v<=5?[0,"Protective level of residual chlorine."]:[2,"Above 5 mg/L: too high to drink."]]];
+$("chk").onclick=()=>{let w=0,h="",n=0;
+ rules.forEach(([id,l,f])=>{const r=$(id).value;if(r==="")return;n++;const [s,m]=f(+r);w=Math.max(w,s);
+  h+=`<div class="res ${["","wn","bd"][s]}"><b>${l}:</b> ${m}</div>`});
+ if(!n){$("out").innerHTML="<p>Enter at least one reading.</p>";return}
+ const v=["✅ Looks safe to drink","⚠️ Treat before drinking (filter + boil 1 min)","⛔ Do not drink untreated"][w];
+ $("out").innerHTML=`<h3>${v}</h3>${h}`};
+
+/* ---- 2. Usage tracker ---- */
+const items=[["Shower (per min)",9],["Toilet flush",6],["Brushing teeth (tap on)",6],["Washing dishes",20],["Laundry load",50],["Drinking/cooking (per L)",1]];
+let log=store.get("aq_log",{});const today=new Date().toISOString().slice(0,10);
+$("t1").innerHTML=`<h2>Daily water footprint</h2><small>Goal: ≤ 100 L per person per day (UN minimum for basic needs is 50–100 L).</small>
+<div id="btns" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0"></div>
+<div class="bar"><i id="fill"></i></div><p id="tot"></p><div id="tip"></div>
+<button class="go" id="rst" style="background:var(--mu)">Reset today</button>`;
+items.forEach(([n,l])=>{const b=document.createElement("button");b.textContent=`+ ${n} (${l} L)`;b.className="go";b.style.cssText="width:auto;margin:0;padding:8px 12px;font-weight:400";b.onclick=()=>{log[today]=(log[today]||0)+l;store.set("aq_log",log);draw()};$("btns").appendChild(b)});
+$("rst").onclick=()=>{log[today]=0;store.set("aq_log",log);draw()};
+function draw(){const t=log[today]||0;$("fill").style.width=Math.min(100,t)+"%";$("fill").style.background=t>100?"var(--bd)":t>70?"var(--wn)":"var(--ac)";
+ $("tot").innerHTML=`<b>${t} L</b> used today`;
+ $("tip").innerHTML=t>100?"<div class='res bd'>Over budget! Try shorter showers and turn the tap off while brushing (saves ~10 L).</div>":t>70?"<div class='res wn'>Almost at your limit. Reuse rinse water for plants.</div>":"<div class='res'>Great, you're within a sustainable range. 🌍</div>"}
+draw();
+
+/* ---- 3. Sanitation ---- */
+const tasks=["Wash hands with soap for 20 s after the toilet","Wash hands before cooking and eating","Store drinking water in a covered, clean container","Clean the water container weekly","Keep toilets and latrines away from water sources (30 m+)","Dispose of waste in bins, never near streams","Fix leaking taps within a week"];
+let done=store.get("aq_done",[]);
+$("t2").innerHTML=`<h2>Sanitation checklist</h2><small>Handwashing alone can cut diarrhoeal disease by about 30%.</small><div id="cl2"></div><p id="sc"></p>`;
+tasks.forEach((t,i)=>{const d=document.createElement("label");d.className="chk";d.style.color="var(--tx)";d.style.fontSize="1rem";
+ d.innerHTML=`<input type="checkbox" ${done.includes(i)?"checked":""}> <span>${t}</span>`;
+ d.firstChild.onchange=e=>{done=e.target.checked?[...new Set([...done,i])]:done.filter(x=>x!==i);store.set("aq_done",done);score()};$("cl2").appendChild(d)});
+function score(){$("sc").innerHTML=`<b>Hygiene score: ${done.length}/${tasks.length}</b> ${done.length===tasks.length?"🏆":""}`}score();
+</script></body></html>
